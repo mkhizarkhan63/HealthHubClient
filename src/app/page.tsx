@@ -136,7 +136,7 @@ debugger;
       </main>
 
       <CallDrawer 
-        call={selectedCall}
+        call={selectedCall ?? null}
         isOpen={!!selectedCall}
         onClose={() => setSelectedCallId(null)}
       />
