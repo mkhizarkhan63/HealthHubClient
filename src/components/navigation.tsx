@@ -1,37 +1,107 @@
-import { Button } from "@/components/ui/button";
-import { Settings } from "lucide-react";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
+  Box,
+  Container,
+  useTheme,
+  useMediaQuery
+} from "@mui/material";
+import { Settings, Link as LinkIcon } from "@mui/icons-material";
 import Link from "next/link";
 
 export default function Navigation() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-card shadow-sm border-b border-border z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
-        <div className="flex items-center justify-between">
+    <AppBar
+      position="fixed"
+      elevation={1}
+      sx={{
+        backgroundColor: 'background.paper',
+        zIndex: theme.zIndex.appBar
+      }}
+    >
+      <Container maxWidth="xl" sx={{ maxWidth: { xs: '100%', sm: '1280px' } }}>
+        <Toolbar
+          disableGutters
+          sx={{
+            py: { xs: 1, sm: 1 },
+            minHeight: 'auto',
+          }}
+        >
           {/* Logo Section */}
-          <div className="flex items-center space-x-2 sm:space-x-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center">
-              <img 
-                src="/mbspro-logo.png" 
-                alt="MBSPro Logo" 
-                className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
+          <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+            <Box
+              sx={{
+                width: { xs: 32, sm: 40 },
+                height: { xs: 32, sm: 40 },
+                borderRadius: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mr: { xs: 1, sm: 1.5 }
+              }}
+            >
+              <Box
+                component="img"
+                src="/mbspro-logo.png"
+                alt="MBSPro Logo"
+                sx={{
+                  width: { xs: 24, sm: 32 },
+                  height: { xs: 24, sm: 32 },
+                  objectFit: 'contain'
+                }}
               />
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-lg sm:text-xl font-semibold text-foreground truncate">MBSPro</h1>
-              <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">AI receptionist</p>
-            </div>
-          </div>
-          
+            </Box>
+            <Box sx={{ minWidth: 0, flex: 1 }}>
+              <Typography
+                variant={isMobile ? "subtitle1" : "h6"}
+                component="h1"
+                sx={{
+                  fontWeight: 600,
+                  color: 'text.primary',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                MBSPro
+              </Typography>
+              {!isMobile && (
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: 'text.secondary',
+                    display: 'block'
+                  }}
+                >
+                  AI receptionist
+                </Typography>
+              )}
+            </Box>
+          </Box>
+
           {/* Settings Section */}
-          <div className="flex items-center">
-            <Link href="/settings">
-              <Button variant="ghost" size="sm" className="p-2">
-                <Settings className="h-4 w-4" />
-              </Button>
+          <Box>
+            <Link href="/settings" passHref>
+              <IconButton
+                size="small"
+                sx={{
+                  color: 'text.primary',
+                  '&:hover': {
+                    backgroundColor: 'action.hover'
+                  }
+                }}
+              >
+                <Settings fontSize="small" />
+              </IconButton>
             </Link>
-          </div>
-        </div>
-      </div>
-    </nav>
+          </Box>
+        </Toolbar>
+      </Container>
+    </AppBar>
   );
 }

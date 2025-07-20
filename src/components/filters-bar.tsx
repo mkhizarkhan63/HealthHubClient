@@ -1,7 +1,18 @@
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Search, RefreshCw } from "lucide-react";
+import {
+  Paper,
+  Box,
+  TextField,
+  Button,
+  Typography,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel,
+  InputAdornment,
+  useTheme,
+  useMediaQuery
+} from "@mui/material";
+import { Search, Refresh } from "@mui/icons-material";
 
 interface FiltersBarProps {
   searchQuery: string;
@@ -22,55 +33,132 @@ export default function FiltersBar({
   onRefresh,
   isRefreshing
 }: FiltersBarProps) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('lg'));
+
   return (
-    <Card className="p-4 sm:p-6 mb-4 sm:mb-6">
-      <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
-        <div className="flex flex-col space-y-3 sm:space-y-4 lg:flex-row lg:items-center lg:space-y-0 lg:space-x-4">
+    <Paper
+      sx={{
+        p: { xs: 2, sm: 3 },
+        mb: { xs: 2, sm: 3 }
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', lg: 'row' },
+          alignItems: { lg: 'center' },
+          justifyContent: { lg: 'space-between' },
+          gap: { xs: 2, sm: 2, lg: 0 }
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', lg: 'row' },
+            alignItems: { lg: 'center' },
+            gap: { xs: 1.5, sm: 2, lg: 2 }
+          }}
+        >
           {/* Search */}
-          <div className="relative flex-1 lg:max-w-sm">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              type="text"
+          <Box sx={{ flex: { lg: 1 }, maxWidth: { lg: 400 } }}>
+            <TextField
+              fullWidth
+              size="small"
               placeholder="Search patients, calls..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-10 text-sm sm:text-base"
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Search sx={{ color: 'text.secondary', fontSize: 20 }} />
+                    </InputAdornment>
+                  ),
+                },
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  bgcolor: 'background.paper'
+                }
+              }}
             />
-          </div>
+          </Box>
 
           {/* Status Filter */}
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-muted-foreground hidden sm:inline">Status:</span>
-            <select 
-              value={statusFilter}
-              onChange={(e) => onStatusChange(e.target.value)}
-              className="appearance-none bg-card border border-border rounded-lg px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent min-w-0 flex-1 sm:flex-none sm:w-auto"
-            >
-              <option value="all">All</option>
-              <option value="attention">Attention Needed</option>
-              <option value="approved">Approved</option>
-              <option value="completed">Completed</option>
-            </select>
-          </div>
-        </div>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {!isMobile && (
+              <Typography
+                variant="body2"
+                sx={{ color: 'text.secondary', minWidth: 'fit-content' }}
+              >
+                Status:
+              </Typography>
+            )}
+            <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 180 } }}>
+              <Select
+                value={statusFilter}
+                onChange={(e) => onStatusChange(e.target.value)}
+                sx={{ bgcolor: 'background.paper' }}
+              >
+                <MenuItem value="all">All</MenuItem>
+                <MenuItem value="attention">Attention Needed</MenuItem>
+                <MenuItem value="approved">Approved</MenuItem>
+                <MenuItem value="completed">Completed</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+        </Box>
 
         {/* Summary and Refresh */}
-        <div className="flex items-center justify-between lg:justify-end space-x-3 mt-2 lg:mt-0">
-          <span className="text-xs sm:text-sm text-muted-foreground">
-            <span className="font-medium">{totalCalls}</span> calls
-          </span>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: { xs: 'space-between', lg: 'flex-end' },
+            gap: 1.5,
+            mt: { xs: 1, lg: 0 }
+          }}
+        >
+          <Typography
+            variant="body2"
+            sx={{ color: 'text.secondary' }}
+          >
+            <Box component="span" sx={{ fontWeight: 500 }}>
+              {totalCalls}
+            </Box>{' '}
+            calls
+          </Typography>
           <Button
-            variant="outline"
-            size="sm"
+            variant="outlined"
+            size="small"
             onClick={onRefresh}
             disabled={isRefreshing}
-            className="flex items-center space-x-2"
+            startIcon={
+              <Refresh
+                sx={{
+                  fontSize: 16,
+                  ...(isRefreshing && {
+                    animation: 'spin 1s linear infinite',
+                    '@keyframes spin': {
+                      '0%': {
+                        transform: 'rotate(0deg)',
+                      },
+                      '100%': {
+                        transform: 'rotate(360deg)',
+                      },
+                    },
+                  })
+                }}
+              />
+            }
+            sx={{ minWidth: 'auto' }}
           >
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Refresh</span>
+            {!isMobile && 'Refresh'}
           </Button>
-        </div>
-      </div>
-    </Card>
+        </Box>
+      </Box>
+    </Paper>
   );
 }

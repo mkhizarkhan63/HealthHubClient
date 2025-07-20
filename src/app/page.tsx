@@ -2,11 +2,24 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  Box,
+  Container,
+  Typography,
+  Paper,
+  FormControl,
+  Select,
+  MenuItem,
+  InputLabel,
+  useTheme,
+  useMediaQuery,
+  Alert,
+  AlertTitle
+} from "@mui/material";
 import Navigation from "@/components/navigation";
 import FiltersBar from "@/components/filters-bar";
 import CallTable from "@/components/call-table";
 import CallDrawer from "@/components/call-drawer";
-import { Card } from "@/components/ui/card";
 import type { CallDto } from "@/types/api";
 
 export default function Dashboard() {
@@ -16,7 +29,7 @@ export default function Dashboard() {
   const [dateFilter, setDateFilter] = useState<string>("all");
 
   const queryClient = useQueryClient();
-debugger;
+  // debugger;
   const { data: calls = [], isLoading, error, isFetching } = useQuery<CallDto[]>({
     queryKey: ["/api/calls"],
     refetchInterval: 30000, // Refresh every 30 seconds for real-time updates
@@ -32,8 +45,8 @@ debugger;
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       if (!call.patientName.toLowerCase().includes(query) &&
-          !call.reason.toLowerCase().includes(query) &&
-          !call.phoneNumber.includes(query)) {
+        !call.reason.toLowerCase().includes(query) &&
+        !call.phoneNumber.includes(query)) {
         return false;
       }
     }
@@ -66,58 +79,100 @@ debugger;
   });
 
   const selectedCall = selectedCallId ? calls.find(call => call.id === selectedCallId) : null;
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   if (error) {
     return (
-      <div className="min-h-screen bg-muted">
+      <Box sx={{ minHeight: '100vh', bgcolor: 'grey.50' }}>
         <Navigation />
-        <main className="pt-20 sm:pt-24 px-4 sm:px-6 max-w-7xl mx-auto">
-          <Card className="p-6 sm:p-8 text-center">
-            <h2 className="text-xl font-semibold text-destructive mb-2">Error Loading Calls</h2>
-            <p className="text-muted-foreground">
+        <Container
+          maxWidth="xl"
+          sx={{
+            pt: { xs: 10, sm: 12 },
+            px: { xs: 2, sm: 3 }
+          }}
+        >
+          <Paper sx={{ p: { xs: 3, sm: 4 }, textAlign: 'center' }}>
+            <Alert severity="error">
+              <AlertTitle>Error Loading Calls</AlertTitle>
               Failed to connect to ElevenLabs API. Please check your API configuration.
-            </p>
-          </Card>
-        </main>
-      </div>
+            </Alert>
+          </Paper>
+        </Container>
+      </Box>
     );
   }
 
   return (
-    <div className="min-h-screen bg-muted">
+    <Box sx={{ minHeight: '100vh', bgcolor: 'grey.50' }}>
       <Navigation />
-      
-      <main className="pt-20 sm:pt-24 px-4 sm:px-6 max-w-7xl mx-auto">
-        {/* Header Section */}
-        <div className="mb-4 sm:mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-2 sm:space-y-0">
-            <h2 className="text-xl sm:text-2xl font-semibold text-foreground">Today's Calls</h2>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <select 
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  className="appearance-none bg-card border border-border rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                >
-                  <option value="today">Today</option>
-                  <option value="week">Last 7 days</option>
-                  <option value="custom">Custom range</option>
-                </select>
-                <select 
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="appearance-none bg-card border border-border rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                >
-                  <option value="all">All Status</option>
-                  <option value="attention">Attention Needed</option>
-                  <option value="approved">Approved</option>
-                  <option value="completed">Completed</option>
-                </select>
-              </div>
-            </div>
-          </div>
 
-          <FiltersBar 
+      <Container
+        maxWidth="xl"
+        component="main"
+        sx={{
+          pt: { xs: 10, sm: 12 },
+          px: { xs: 2, sm: 3 },
+          maxWidth: { xs: '100%', sm: '1280px' },
+        }}
+      >
+        {/* Header Section */}
+        <Box sx={{ mb: { xs: 2, sm: 3 } }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              alignItems: { sm: 'center' },
+              justifyContent: { sm: 'space-between' },
+              mb: { xs: 2, sm: 3 },
+              gap: { xs: 1, sm: 0 }
+            }}
+          >
+            <Typography
+              variant={isMobile ? "h5" : "h4"}
+              component="h2"
+              sx={{ fontWeight: 600, color: 'text.primary' }}
+            >
+              Today's Calls
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <FormControl size="small" sx={{ minWidth: 120 }}>
+                  {/* <InputLabel>Date Range</InputLabel> */}
+                  <InputLabel id="date-filter-label">Date Range</InputLabel>
+                  <Select
+                    labelId="date-filter-label"
+                    value={dateFilter}
+                    label="Date Range"
+                    onChange={(e) => setDateFilter(e.target.value)}
+                  >
+                    <MenuItem value="all">
+                      All
+                    </MenuItem>
+                    <MenuItem value="today">Today</MenuItem>
+                    <MenuItem value="week">Last 7 days</MenuItem>
+                    <MenuItem value="custom">Custom range</MenuItem>
+                  </Select>
+                </FormControl>
+                <FormControl size="small" sx={{ minWidth: 120 }}>
+                  <InputLabel>Status</InputLabel>
+                  <Select
+                    value={statusFilter}
+                    label="Status"
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                  >
+                    <MenuItem value="all">All Status</MenuItem>
+                    <MenuItem value="attention">Attention Needed</MenuItem>
+                    <MenuItem value="approved">Approved</MenuItem>
+                    <MenuItem value="completed">Completed</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
+            </Box>
+          </Box>
+
+          <FiltersBar
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             statusFilter={statusFilter}
@@ -126,20 +181,20 @@ debugger;
             onRefresh={handleRefresh}
             isRefreshing={isFetching}
           />
-        </div>
+        </Box>
 
-        <CallTable 
+        <CallTable
           calls={filteredCalls}
           isLoading={isLoading}
           onViewTranscript={setSelectedCallId}
         />
-      </main>
+      </Container>
 
-      <CallDrawer 
+      <CallDrawer
         call={selectedCall ?? null}
         isOpen={!!selectedCall}
         onClose={() => setSelectedCallId(null)}
       />
-    </div>
+    </Box>
   );
 } 
